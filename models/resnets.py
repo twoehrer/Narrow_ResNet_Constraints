@@ -55,7 +55,7 @@ class ResidualBlock(nn.Module):
     The gain parameter is used for the Xavier initialization of the linear layer weights. It multiplies the standard initialization values.
     """ 
     
-    def __init__(self, features, skip_param = 1, sara_param = 1, activation = 'relu', batchnorm = True, gain = 1.0, bias = True):
+    def __init__(self, features, skip_param = 1, residual_param = 1, activation = 'relu', batchnorm = True, gain = 1.0, bias = True):
 
         super(ResidualBlock, self).__init__()
         self.fc = nn.Linear(features, features,  bias = bias)
@@ -76,18 +76,18 @@ class ResidualBlock(nn.Module):
         if activation == 'id':
             self.activation = nn.Identity()
         self.skip_param = skip_param
-        self.sara_param = sara_param
+        self.residual_param = residual_param
     def forward(self, x):
         identity = x #cont here
         out = self.fc(x)
         if hasattr(self, 'bn'):
             out = self.bn(out)
         out = self.activation(out)
-        out = self.sara_param * out + self.skip_param * identity
+        out = self.residual_param * out + self.skip_param * identity
         return out
 
 class ResNet(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim, num_hidden, skip_param = 1,  sara_param = 1, activation = 'relu', final_sigmoid = True, batchnorm = True, input_layer = True, input_layer_diagonal = False, fixed_w = None, bias = True, init_scale = 1.):
+    def __init__(self, input_dim, hidden_dim, output_dim, num_hidden, skip_param = 1,  residual_param = 1, activation = 'relu', final_sigmoid = True, batchnorm = True, input_layer = True, input_layer_diagonal = False, fixed_w = None, bias = True, init_scale = 1.):
         
         super(ResNet, self).__init__()
         self.num_hidden = num_hidden
@@ -95,7 +95,7 @@ class ResNet(nn.Module):
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
         self.skip_param = skip_param
-        self.sara_param = sara_param
+        self.residual_param = residual_param
         self.input_layer_exists = input_layer
         self.input_layer_diagonal = input_layer_diagonal
         self.init_scale = init_scale 
@@ -120,7 +120,7 @@ class ResNet(nn.Module):
             
         
         self.res_blocks = nn.Sequential(
-            *[ResidualBlock(hidden_dim, skip_param=skip_param, sara_param = sara_param, activation = activation, batchnorm=batchnorm, bias = bias) for _ in range(num_hidden)]
+            *[ResidualBlock(hidden_dim, skip_param=skip_param, residual_param = residual_param, activation = activation, batchnorm=batchnorm, bias = bias) for _ in range(num_hidden)]
         )
         if final_sigmoid:
             self.output_fc = nn.Sequential(
