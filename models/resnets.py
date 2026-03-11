@@ -60,7 +60,7 @@ class ResidualBlock(nn.Module):
         super(ResidualBlock, self).__init__()
         self.fc = nn.Linear(features, features,  bias = bias)
         
-        # --- Xavier initialization (good for tanh, id; works ok for relu if you prefer simpler setup)
+        # --- Xavier initialization (good for tanh activation) ---
         nn.init.xavier_normal_(self.fc.weight, gain = gain)
         
         if self.fc.bias is not None:
@@ -87,7 +87,7 @@ class ResidualBlock(nn.Module):
         return out
 
 class ResNet(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim, num_hidden, skip_param = 1,  sara_param = 1, activation = 'relu', final_sigmoid = True, batchnorm = True, input_layer = True, input_layer_diagonal = False, fixed_w = None, bias = True, xavier_gain = 1.0):
+    def __init__(self, input_dim, hidden_dim, output_dim, num_hidden, skip_param = 1,  sara_param = 1, activation = 'relu', final_sigmoid = True, batchnorm = True, input_layer = True, input_layer_diagonal = False, fixed_w = None, bias = True, init_scale = 1.):
         
         super(ResNet, self).__init__()
         self.num_hidden = num_hidden
@@ -98,6 +98,7 @@ class ResNet(nn.Module):
         self.sara_param = sara_param
         self.input_layer_exists = input_layer
         self.input_layer_diagonal = input_layer_diagonal
+        self.init_scale = init_scale 
         if activation == 'relu':
             self.activation = nn.ReLU()
         if activation == 'tanh':
@@ -126,6 +127,21 @@ class ResNet(nn.Module):
                 nn.Linear(hidden_dim, output_dim, bias = bias),nn.Sigmoid())
         else:
             self.output_fc = nn.Linear(hidden_dim, output_dim, bias = bias)
+            
+        self.res_blocks.apply(self._scale_standard_init) #rescales the weights of the residual blocks
+        
+    def _scale_standard_init(self, m):
+        """
+        Takes the standard PyTorch initialized weights and scales them by init_scale.
+        """
+        if isinstance(m, nn.Linear):
+            with torch.no_grad():
+                # Multiply the existing weights by init_scale
+                m.weight.mul_(self.init_scale)
+                
+                # Zero out the biases
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
 
     def forward(self, x, output_layer = True):
         if self.input_layer_exists:
