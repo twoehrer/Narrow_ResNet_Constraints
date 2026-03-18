@@ -44,7 +44,7 @@ def compute_accuracy(y_pred, y_true, type='class'):
 import copy
 
 def train_model(model, train_loader, test_loader,
-                                load_file = None, epochs=300, lr=0.01, early_stopping = True, patience=300, cross_entropy=True, seed = None):
+                                load_file = None, epochs=300, lr=0.01, early_stopping = True, patience=300, cross_entropy=True, seed = None, save_path = 'last'):
     """
     Trains the model on the provided training data and evaluates it on the test data.
     patience is the number of epochs to wait for improvement before stopping training.
@@ -124,7 +124,7 @@ def train_model(model, train_loader, test_loader,
         'accuracy': best_acc,
         'activation': model.activation
         }
-        save_path = f'last.pth'
+        save_path = save_path + '.pth'
         torch.save(checkpoint, save_path)
         # print(f'Checkpoint saved to {save_path}')
         # We have the losses from training directly
