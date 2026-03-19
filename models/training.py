@@ -181,14 +181,14 @@ def train_model(model, train_loader, test_loader,
 
 
 def train_until_threshold(model_class, train_loader, test_loader, 
-                          load_file = None, cross_entropy=True, epochs = 300, max_retries=10, threshold=0.95, early_stopping = True, seed = None, **model_kwargs):
+                          load_file = None, save_path = 'last', cross_entropy=True, epochs = 300, max_retries=10, threshold=0.95, early_stopping = True, seed = None, **model_kwargs):
     if load_file is None:
         for attempt in range(1, max_retries + 1):
             seed = np.random.randint(1000)
             np.random.seed(seed)
             torch.manual_seed(seed)
             model = model_class(**model_kwargs)
-            model, acc, losses = train_model(model, train_loader, test_loader, cross_entropy= cross_entropy, epochs = epochs, early_stopping = early_stopping)
+            model, acc, losses = train_model(model, train_loader, test_loader, cross_entropy= cross_entropy, epochs = epochs, early_stopping = early_stopping, save_path = save_path)
             print(f"[Attempt {attempt}] Accuracy: {acc:.3f}")
             if acc >= threshold:
                 print(f"✅ Success after {attempt} attempt(s)!")

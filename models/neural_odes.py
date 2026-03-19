@@ -377,8 +377,9 @@ class NeuralODEvar(nn.Module):
         self.architecture = architecture
         self.cross_entropy = cross_entropy
         self.fixed_projector = fixed_projector
-        if layers_hidden > 0: #if the right hand side has higher dimensional parameters in form of hidden layers (these are not discretization layers but right hand side function layers)
-            dynamics = Dynamics_with_layers(device, data_dim, hidden_dim, augment_dim, non_linearity, self.T, layers_hidden = layers_hidden)
+        self.layers_hidden = layers_hidden
+        if self.layers_hidden > 0: #if the right hand side has higher dimensional parameters in form of hidden layers (these are not discretization layers but right hand side function layers)
+            dynamics = Dynamics_with_layers(device, data_dim, hidden_dim, augment_dim, non_linearity, self.T, layers_hidden = self.layers_hidden)
             print('hidden layers found')
         else:
             dynamics = Dynamics(device, data_dim, hidden_dim, augment_dim, non_linearity, architecture, self.T, self.num_params)
