@@ -1109,3 +1109,71 @@ def make_xor(output_dim, n_samples = 2000, noise = 0.2, cross_entropy = False, p
     test_dataloader = DataLoader(test_dataset, batch_size=n_samples, shuffle=False)
         
     return train_dataloader, test_dataloader
+
+def make_xor_new(output_dim, n_samples=2000, noise=0.0, cross_entropy=False, plot=True, batch_size=128, filename=None):
+    """Generates dataset based on the level set x_2^2 - x_1^2 = 0
+    Points are sampled uniformly from [-1,1]^2
+    Label 0 (blue)   if x_2^2 - x_1^2 < 0  (i.e. |x_1| > |x_2|)
+    Label 1 (orange) if x_2^2 - x_1^2 >= 0  (i.e. |x_2| > |x_1|)
+    """
+    seed = np.random.randint(1000)
+    print(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+    # Sample uniformly from [-1, 1]^2
+    data = torch.FloatTensor(n_samples, 2).uniform_(-1, 1)
+
+    if noise > 0:
+        data += noise * torch.randn(data.shape)
+
+    # Label based on level set: x_2^2 - x_1^2 = 0
+    level = data[:, 1] ** 2 - data[:, 0] ** 2
+    labels = (level >= 0.0).float()  # 0 = blue, 1 = orange
+
+    X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2)
+
+    if plot:
+        data_0 = X_train[y_train == 0]  # blue  (|x_1| > |x_2|)
+        data_1 = X_train[y_train == 1]  # orange (|x_2| > |x_1|)
+
+        plt.figure(figsize=(8, 8))
+        plt.scatter(data_0[:, 0], data_0[:, 1], s=20, c='C0', alpha=0.5, label='x₂²−x₁² < 0')
+        plt.scatter(data_1[:, 0], data_1[:, 1], s=20, c='C1', alpha=0.5, label='x₂²−x₁² ≥ 0')
+
+        # Boundary is x_2^2 = x_1^2, i.e. the diagonals x_2 = ±x_1
+        x1_vals = np.linspace(-1, 1, 400)
+        plt.plot(x1_vals,  x1_vals, 'k--', linewidth=1.5, label='x₂²=x₁²')
+        plt.plot(x1_vals, -x1_vals, 'k--', linewidth=1.5)
+
+        plt.xlabel('X₁')
+        plt.ylabel('X₂')
+        plt.legend()
+        plt.title('Training Dataset: Level Set x₂²−x₁²=0')
+        plt.axis('equal')
+        plt.xlim(-1, 1)
+        plt.ylim(-1, 1)
+        plt.grid(True)
+
+        if filename is not None:
+            plt.savefig(f'{filename}.png', bbox_inches='tight', dpi=300)
+            print(f'Plot saved as {filename}.png')
+
+        plt.show()
+
+    X_train = torch.tensor(X_train, dtype=torch.float32)
+    X_test  = torch.tensor(X_test,  dtype=torch.float32)
+
+    if output_dim == 1:
+        y_train = torch.tensor(y_train.reshape(-1, 1), dtype=torch.float32)
+        y_test  = torch.tensor(y_test.reshape(-1, 1),  dtype=torch.float32)
+    else:
+        y_train = torch.tensor(y_train, dtype=torch.float32)
+        y_test  = torch.tensor(y_test,  dtype=torch.float32)
+
+    train_dataset    = TensorDataset(X_train, y_train)
+    test_dataset     = TensorDataset(X_test,  y_test)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_dataloader  = DataLoader(test_dataset,  batch_size=n_samples,  shuffle=False)
+
+    return train_dataloader, test_dataloader

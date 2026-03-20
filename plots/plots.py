@@ -362,7 +362,7 @@ def plot_decision_boundary(model, X, y, title="Prediction Level Sets", amount_le
     ax.set_xlim(x_min, x_max)
     ax.set_ylim(y_min, y_max)
  
-    ax.axis('tight')
+    # ax.axis('tight')
     ax.grid(False)
     if colorbar:
         colorbar_ticks = np.linspace(0, 1, 9)
