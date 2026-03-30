@@ -2,7 +2,7 @@
 
 This code base provides the numerical experiments discussed in the paper 
 
-It contains the training setup for various narrow ResNets including neural ODEs and MLPs.
+It contains the training setup for various narrow/non-augmented ResNets including neural ODEs and MLPs.
 
 ## One-Dimensional ResNets
 In the one-dimensional setting, we train models to approximate x^2 and analyze the present embedding restrictions
@@ -14,8 +14,7 @@ In the one-dimensional setting, we train models to approximate x^2 and analyze t
 <img width="300" alt="2d_node_regime_pred" src="https://github.com/user-attachments/assets/2500cd81-a480-428a-ae84-3888badf0f87" />
 <img width="300" alt="2d_node_regime_ls" src="https://github.com/user-attachments/assets/55c710d9-6398-4560-a6e7-fc60fb48124b" />
 
-In the neural ODE regime, the narrow ResNet cannot express critical points, forcing the model to shift them toward infinity. 
-This topological constraint creates a "tunnel" in the prediction level sets, leading to unavoidable misclassifications on the 2D circle dataset. <p>
+In the neural ODE regime, the narrow ResNet cannot express critical points. This topological constraint creates a "tunnel" in the prediction level sets, leading to unavoidable misclassifications on the 2D circle dataset. <p>
 
 <img width="300" alt="2d_mlp_regime_pred" src="https://github.com/user-attachments/assets/0a0620c8-7471-498c-b76e-01ace7aedc30" />
 <img width="300" alt="2d_mlp_regime6_ls" src="https://github.com/user-attachments/assets/fd44f754-9785-4d05-a663-99a368c14d7a" />
