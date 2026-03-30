@@ -25,4 +25,4 @@ The resulting input-output map generates the exact same "tunnel effect", failing
 <img width="300"  alt="ff6_res_pred" src="https://github.com/user-attachments/assets/acb0d715-68c5-46a2-8ce6-4d58310770db" />
 <img width="300"  alt="ff6_res_ls" src="https://github.com/user-attachments/assets/d5e0c553-8409-489d-930d-415959a6098b" />
 
-Standard ResNets are able to embed critical points and are able to express the desired topology of the data.
+Standard ResNets are able to embed critical points and as a result express the desired topology of the data accurately.
